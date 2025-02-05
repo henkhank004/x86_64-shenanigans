@@ -5,4 +5,3 @@
 
 extern print
 extern read
-extern scan

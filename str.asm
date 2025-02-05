@@ -62,7 +62,7 @@ strlen:
     ret
 
 
-; Converts an ASCII 0-terminated string to an intiger.
+; Converts an ASCII 0-terminated string to an ssize_t.
 ; Arguments:
 ;   rdi (char*): ASCII string containing the intiger
 ; Returns intiger value from the string.
@@ -79,7 +79,7 @@ atoi:
     cmp rsi, rdi                                                                ; rsi compare to the position of the first digit
     je .first_char                                                              ; if rsi points to the first char, process it appropriately
 
-    movzx rcx, byte [rsi]                                                          ; move the current digit into cl
+    movzx rcx, byte [rsi]                                                       ; move the current digit into cl
     sub rcx, 48                                                                 ; convert ASCII-char to numeric value
     imul rcx, rdx                                                               ; multiply number by power of 10 assiciated with its position in rdx
     add rax, rcx                                                                ; add the found number to result in rax
@@ -99,5 +99,43 @@ atoi:
 .negate:
     neg rax
 .done:
+    ret
+
+
+; Converts an integer into a 0-terminated ASCII string.
+; Assumes the buffer is of an appropriate size.
+; Arguments:
+;   rdi (long): the integer
+;   rsi (buff*): ptr to start of the buffer to write into
+; Returns number of characters written to string
+; including the 0-char at the end.
+itoa:
+    mov rax, rdi                                                                ; move integer into rax
+    mov r10, 10                                                                 ; r11 will hold the powers of 10
+    xor r11, r11                                                                ; used to store the order of the number
+
+.det_order:
+    xor rdx, rdx                                                                ; set rdx to zero for the division
+    inc r11                                                                     ; increment the order by one
+    div r10                                                                     ; devide the remaining mod number by 10
+    cmp rax, 0                                                                  ; rax now holds n (mod 10^{r11})
+    jne .det_order                                                              ; if rax = 0, then rdx holds the first digit, and r11 holds the order
+
+
+    add rsi, r11                                                                ; set rsi to end of string
+    mov byte [rsi], 0                                                           ; 0-terminate end of string
+    mov rax, rdi                                                                ; set rax to the number
+
+.write:
+    xor rdx, rdx                                                                ; set rdx to zero for the division
+    dec rsi                                                                     ; move rsi to next char
+    div r10                                                                     ; rdx now holds the remaining number mod 10, rax holds the remaining part to be written
+    add rdx, 48                                                                 ; transform numeral into ASCII representation
+    mov byte [rsi], dl                                                          ; write the ASCII char to the string
+    cmp rax, 0                                                                  ; if rax is zero, then rdx holds first digit: i.e. all digits will have been written
+    jne .write                                                                  ; if rax not zero, then there are still digits to be written
+
+    mov rax, r11                                                                ; number of characters excluding \0 at the end is equal to the order
+    inc rax                                                                     ; increment rax to account for the \0 char at the end of the string
     ret
 

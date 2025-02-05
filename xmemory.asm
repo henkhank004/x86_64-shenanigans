@@ -110,7 +110,7 @@ xmrealloc:
 
 
 
-; Copies the number of bytes specified from src to dest.
+; Copies the number of bytes specified from src to dst.
 ; Arguments a:
 ;   rdi (src*): ptr to source buffer
 ;   rsi (dst*): ptr to destination buffer

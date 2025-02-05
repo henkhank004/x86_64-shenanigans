@@ -1,3 +1,5 @@
+%include "xmemory.inc"
+
 section .text
     global strfind
     global atoi

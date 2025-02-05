@@ -19,7 +19,7 @@
 ;  +------------------------+------------------------------------------------+
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
 
-XM_METADATA_OFFSET equ 8                                                        ; one qword to store the smblock's size
+XM_METADATA_OFFSET equ 8
 
 section .text
     global xmalloc
@@ -27,7 +27,6 @@ section .text
     global xmsize
     global xmrealloc
     global xmcpy
-
 
 ; Allocates a block of memory with mmap, returns an smptr.
 ; Arguments:

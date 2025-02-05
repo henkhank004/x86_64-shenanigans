@@ -1,5 +1,6 @@
-/c_debug/
 /obj/
-/obj_debug/
-main
+/debug/
+/c_debug/
 main.asm
+main
+a.out

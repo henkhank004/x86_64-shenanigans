@@ -1,22 +1,10 @@
-extern strfind      ; defined in "str.asm"
-    ; Finds the first instance of a character in a 0-terminated string and returns the position.
-    ; Arguments:
-    ;   rdi (string): text
-    ;   rsi (char)  : char to be found
-    ; Returns pointer to first instance of the char, -1 if the char was not found.
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
+;   PACKAGE FOR BASIC IO UTILITES
+; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
 
-extern memalloc     ; defined in "smemory.asm"
-    ; Allocates a block of memory with mmap.
-    ; Arguments:
-    ;   rdi (size_t): desired size of memory in bytes
-    ; Returns pointer to beginning of mem buff, -1 if error occured.
 
-extern memfree      ; defined in "smemory.asm"
-    ; Free a block of memory allocated by memalloc.
-    ; ! Will cause segmentation fault if called with a pointer to a block not allocated by memalloc !
-    ; Arguments:
-    ;   rdi (addr*): ptr to start of block, must have been allocated by memalloc.
-    ; Returns return code of munmap
+%include "xmemory.inc"
+%include "str.inc"
 
 
 section .text

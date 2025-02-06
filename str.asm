@@ -1,9 +1,14 @@
 %include "xmemory.inc"
 
+section .data
+    some_float  dd  1.521
+
 section .text
     global strfind
     global atoi
     global itoa
+    global atof
+    global ftoa
 
 ; Finds the first instance of a character in a 0-terminated string and returns the position.
 ; Arguments:
@@ -51,7 +56,7 @@ strlen0:
 ;   rdi (char*): 0-terminated string, text
 ; Returns the length of the string EXCLUDING the 0-char
 strlen:
-    mov rax, 0
+    xor rax, rax
 .loop:
     cmp byte [rdi], 0
     je .done                                                                    ; if the byte at [rdi] is 0, then at end of string
@@ -88,7 +93,7 @@ atoi:
 
 .first_char:
     movzx rcx, byte [rsi]
-    cmp rcx, 45                                                                  ; check if first char is a minus sign
+    cmp rcx, 45                                                                 ; check if first char is a minus sign
     je .negate                                                                  ; if it is a minus sign, negate the result in rax
                                                                                 ; if not a minus sign, add the digit like with the other digits
     sub rcx, 48
@@ -139,3 +144,86 @@ itoa:
     inc rax                                                                     ; increment rax to account for the \0 char at the end of the string
     ret
 
+
+; Converts an ASCII 0-terminated string to a float (32-bits).
+; Arguments:
+;    rdi (char*): ASCII string containing the intiger
+; Returns (xmm0) float value from the string.
+atof:
+    call _acdtoir                                                               ; get the integer reduction
+    mov rdx, rax                                                                ; store integer reduction in rdx
+
+    mov rsi, 46                                                                 ; load ASCII code for '.'
+    call strfind                                                                ; rax now holds the position of the decimal delimiter
+    mov rdi, rax
+    call strlen                                                                 ; rax now holds (1 + the number of divisions) by 10 required to get original float from integer reductoin
+
+    cvtsi2ss xmm0, rdx
+
+    mov r10, 10                                                                 
+    cvtsi2ss xmm1, r10                                                          ; used in computation
+.loop:
+    divss xmm0, xmm1
+    dec rax
+    cmp rax, 1
+    jne .loop
+
+    ret
+
+
+; Converts an ASCII 0-terminated containing a float to an intiger
+; obtained by simply removing the decimal delimiter.
+;   i.e. input (str) "123.4567",0 returns (int) 1234567
+; Arguments:
+;   rdi (char*): ASCII string containing the float
+; Returns intiger value from the string.
+_acdtoir:
+    xor rsi, rsi                                                                ; set rsi = 0 to find the end of string
+    call strfind                                                                ; rax now points to the \0 char
+    mov rsi, rax                                                                ; rsi now points to least significant digit + 1
+    xor rax, rax                                                                ; set rax = 0, will hold return value
+    xor rcx, rcx                                                                ; set rcx = 0, will be used in computation
+
+    mov rdx, 1                                                                  ; will hold the powers of 10 assiciated with current digit
+.loop:
+    dec rsi                                                                     ; dec rsi to next digit
+    cmp rsi, rdi                                                                ; rsi compare to the position of the first digit
+    je .first_char                                                              ; if rsi points to the first char, process it appropriately
+
+    movzx rcx, byte [rsi]                                                       ; move the current digit into cl
+    cmp rcx, 46                                                                 ; if current char is '.', ignore
+    je .loop
+
+    sub rcx, 48                                                                 ; convert ASCII-char to numeric value
+    imul rcx, rdx                                                               ; multiply number by power of 10 assiciated with its position in rdx
+    add rax, rcx                                                                ; add the found number to result in rax
+    imul rdx, rdx, 10                                                           ; set rdx to the next power of 10
+    jmp .loop
+
+.first_char:
+    movzx rcx, byte [rsi]
+    cmp rcx, 45                                                                 ; check if first char is a minus sign
+    je .negate                                                                  ; if it is a minus sign, negate the result in rax
+                                                                                ; if not a minus sign, add the digit like with the other digits
+    sub rcx, 48
+    imul rcx, rdx
+    add rax, rcx
+    jmp .done
+
+.negate:
+    neg rax
+.done:
+    ret
+
+    
+
+
+; Converts a float into a 0-terminated ASCII string.
+; Assumes the buffer is of an appropriate size.
+; Arguments:
+;   rdi (float): the integer
+;   rsi (buff*): ptr to start of the buffer to write into
+; Returns number of characters written to string
+; including the 0-char at the end.
+ftoa:
+    ret

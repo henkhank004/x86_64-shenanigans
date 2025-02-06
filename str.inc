@@ -1,5 +1,5 @@
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
-;   LIBRARY FOR BASIC STRING UTILITES
+;   LIBRARY FOR BASIC STRING UTILITIES
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
 
 
@@ -8,3 +8,5 @@ extern strlen
 extern strlen0
 extern atoi
 extern itoa
+extern atof
+extern ftoa

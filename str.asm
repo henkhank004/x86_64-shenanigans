@@ -150,7 +150,7 @@ itoa:
 ;    rdi (char*): ASCII string containing the intiger
 ; Returns (xmm0) float value from the string.
 atof:
-    call _acdtoir                                                               ; get the integer reduction
+    call _acftoir                                                               ; get the integer reduction
     mov rdx, rax                                                                ; store integer reduction in rdx
 
     mov rsi, 46                                                                 ; load ASCII code for '.'
@@ -177,7 +177,7 @@ atof:
 ; Arguments:
 ;   rdi (char*): ASCII string containing the float
 ; Returns intiger value from the string.
-_acdtoir:
+_acftoir:
     xor rsi, rsi                                                                ; set rsi = 0 to find the end of string
     call strfind                                                                ; rax now points to the \0 char
     mov rsi, rax                                                                ; rsi now points to least significant digit + 1

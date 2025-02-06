@@ -1,9 +1,9 @@
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
-;   PACKAGE TO MANAGE MEMORY
+;   LIBRARY TO MANAGE MEMORY
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
 ;
 ; -> ABBREVIATIONS
-; IN THIS LIBRARY THE FOLLOWING NON-STANDARD ABBREVIATIONS MAY OCCURE
+; IN THIS LIBRARY THE FOLLOWING NON-STANDARD ABBREVIATIONS MAY OCCUR
 ;  +------------------------+------------------------------------------------+
 ;  | ABBREVIATION           | MEANING                                        |
 ;  +------------------------+------------------------------------------------+
@@ -12,7 +12,7 @@
 ;  +- -- -- -- -- -- -- -- -+- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -+
 ;  |    (block)             | block will thus refer to the user usable block |
 ;  +------------------------+------------------------------------------------+
-;  |  xmptr                 | a ptr complient with this library              |
+;  |  xmptr                 | a ptr compliant with this library              |
 ;  |                        | (i.e., allocated by xmalloc)                   |
 ;  |                        | this means this ptr points to the start of the |
 ;  |                        | user usable block, NOT the start of the xmblock|
@@ -35,8 +35,8 @@ section .text
 ; Stores size of mem block in the qword before ret_ptr.
 ;   i.e. qword @ [ret_ptr - 8] = sizeof_block
 xmalloc:
-    mov r11, rdi                                                                ; copy size into r11
-    add r11, XM_METADATA_OFFSET                                                 ; adjust for meta data storage
+    add rdi, XM_METADATA_OFFSET                                                 ; adjust for meta data storage
+    push rdi                                                                    ; save the size
 
     mov rax, 9                                                                  ; mmap syscall id
     mov rsi, r11                                                                ; specify size
@@ -50,7 +50,8 @@ xmalloc:
     cmp rax, -1                                                                 ; if error occured in mmap, rax = -1
     je .err                                                                     ; end procedure, return rax as -1
 
-    mov qword [rax], r11                                                        ; store block's size in the first qword
+    pop rdi                                                                     ; load (adjusted) size back into rdi
+    mov qword [rax], rdi                                                        ; store block's size in the first qword
     add rax, XM_METADATA_OFFSET                                                 ; shift addr* over by 8 bytes, to start at usable memory
 
 .err:
@@ -65,6 +66,17 @@ xmfree:
     mov rsi, qword [rdi]                                                        ; move the full size of the block into rsi
     mov rax, 11                                                                 ; syscall id for munmap
     syscall                                                                     
+    ret
+
+
+; Allocates an aligned block of memory with mmap, returns an smptr.
+; Arguments:
+;   rdi (size_t): desired size of memory block in bytes
+;   rsi (size_t): alignment (in bytes)
+; Returns smptr to the block, if error occured.
+; Stores size of mem block in the qword before ret_ptr.
+;   i.e. qword @ [ret_ptr - 8] = sizeof_block
+xmalloca:
     ret
 
 
@@ -84,7 +96,6 @@ xmsize:
     
 
 ; Resize the smemory compliant block of memory to desired size.
-; ! Will cause segmentation fault if not called with a smptr. !
 ; Arguments:
 ;   rdi (addr*): xmptr to start of current block
 ;   rsi (size_t): new desired size
@@ -116,7 +127,7 @@ xmrealloc:
 ;   rsi (dst*): ptr to destination buffer
 ;   rdx (size_t): number of bytes to copy
 ; No return value.
-xmcpy:
+xmncpy:
     mov rax, rdx                                                                ; store num in rax for division
     mov rcx, 8                                                                  ; move size of one qword into rcx
     xor rdx, rdx

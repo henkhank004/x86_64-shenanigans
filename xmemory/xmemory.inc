@@ -1,9 +1,9 @@
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
-;   PACKAGE TO MANAGE MEMORY
+;   LIBRARY TO MANAGE MEMORY
 ; -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
 ;
 ; -> ABBREVIATIONS
-; IN THIS LIBRARY THE FOLLOWING NON-STANDARD ABBREVIATIONS MAY OCCURE
+; IN THIS LIBRARY THE FOLLOWING NON-STANDARD ABBREVIATIONS MAY OCCUR
 ;  +------------------------+------------------------------------------------+
 ;  | ABBREVIATION           | MEANING                                        |
 ;  +------------------------+------------------------------------------------+
@@ -12,7 +12,7 @@
 ;  +- -- -- -- -- -- -- -- -+- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -+
 ;  |    (block)             | block will thus refer to the user usable block |
 ;  +------------------------+------------------------------------------------+
-;  |  xmptr                 | a ptr complient with this library              |
+;  |  xmptr                 | a ptr compliant with this library              |
 ;  |                        | (i.e., allocated by xmalloc)                   |
 ;  |                        | this means this ptr points to the start of the |
 ;  |                        | user usable block, NOT the start of the xmblock|
@@ -28,4 +28,4 @@ extern xmalloc
 extern xmfree
 extern xmsize
 extern xmrealloc
-extern xmcpy
+extern xmncpy

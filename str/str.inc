@@ -4,5 +4,7 @@
 
 
 extern strfind
+extern strlen
+extern strlen0
 extern atoi
 extern itoa

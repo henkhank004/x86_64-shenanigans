@@ -1,14 +1,13 @@
 %include "xmemory.inc"
 
-section .data
-    some_float  dd  1.521
-
 section .text
     global strfind
     global atoi
     global itoa
     global atof
     global ftoa
+    global atod
+    global dtoa
 
 ; Finds the first instance of a character in a 0-terminated string and returns the position.
 ; Arguments:
@@ -147,27 +146,41 @@ itoa:
 
 ; Converts an ASCII 0-terminated string to a float (32-bits).
 ; Arguments:
-;    rdi (char*): ASCII string containing the intiger
+;    rdi (char*): ASCII string containing the float
 ; Returns (xmm0) float value from the string.
 atof:
     call _acftoir                                                               ; get the integer reduction
     mov rdx, rax                                                                ; store integer reduction in rdx
+    cvtsi2ss xmm0, rdx                                                          ; cast ir to float in xmm0
 
     mov rsi, 46                                                                 ; load ASCII code for '.'
     call strfind                                                                ; rax now holds the position of the decimal delimiter
+
+    cmp rax, -1                                                                 ; check if '.' was found
+    je .int                                                                     ; if not found, the number is an integer
+
     mov rdi, rax
-    call strlen                                                                 ; rax now holds (1 + the number of divisions) by 10 required to get original float from integer reductoin
+    call strlen                                                                 ; rax now holds (1 + the number of divisions) by 10 to get the float from integer reduction, i.e. ord_10(f) + 1
+    mov rcx, rax                                                                ; rcx now holds ord_10(f) + 1
 
-    cvtsi2ss xmm0, rdx
-
+    mov rax, 1
     mov r10, 10                                                                 
-    cvtsi2ss xmm1, r10                                                          ; used in computation
-.loop:
-    divss xmm0, xmm1
-    dec rax
-    cmp rax, 1
-    jne .loop
+.exploop:                                                                       ; compute correct power of 10
+    mul r10
+    dec rcx
+    cmp rcx, 1
+    jne .exploop
 
+    cvtsi2ss xmm1, rax                                                          ; cast power of 10 to float in xmm1
+    divss xmm0, xmm1                                                            ; adjust ir by appropriate power of 10
+    
+    jmp .done
+
+.int:
+    call atoi                                                                   ; convert the number, which we now know is an int to a str; rdi strill contains the ptr to the str
+    cvtsi2ss xmm0, rax                                                          ; convert the int to a float
+
+.done:
     ret
 
 
@@ -226,4 +239,56 @@ _acftoir:
 ; Returns number of characters written to string
 ; including the 0-char at the end.
 ftoa:
+    ret
+
+
+; Converts an ASCII 0-terminated string to a double (64-bits).
+; Arguments:
+;    rdi (char*): ASCII string containing the double
+; Returns (xmm0) float value from the string.
+atod:
+    call _acftoir                                                               ; get the integer reduction
+    mov rdx, rax                                                                ; store integer reduction in rdx
+    cvtsi2sd xmm0, rdx                                                          ; cast ir to float in xmm0
+
+    mov rsi, 46                                                                 ; load ASCII code for '.'
+    call strfind                                                                ; rax now holds the position of the decimal delimiter
+
+    cmp rax, -1                                                                 ; check if '.' was found
+    je .int                                                                     ; if not found, the number is an integer
+
+    mov rdi, rax
+    call strlen                                                                 ; rax now holds (1 + the number of divisions) by 10 to get the float from integer reduction, i.e. ord_10(f) + 1
+    mov rcx, rax                                                                ; rcx now holds ord_10(f) + 1
+
+    mov rax, 1
+    mov r10, 10                                                                 
+.exploop:                                                                       ; compute correct power of 10
+    mul r10
+    dec rcx
+    cmp rcx, 1
+    jne .exploop
+
+    cvtsi2sd xmm1, rax                                                          ; cast power of 10 to float in xmm1
+    divsd xmm0, xmm1                                                            ; adjust ir by appropriate power of 10
+    
+    jmp .done
+
+.int:
+    call atoi                                                                   ; convert the number, which we now know is an int to a str; rdi strill contains the ptr to the str
+    cvtsi2sd xmm0, rax                                                          ; convert the int to a float
+
+.done:
+    ret
+
+
+    
+; Converts a double into a 0-terminated ASCII string.
+; Assumes the buffer is of an appropriate size.
+; Arguments:
+;   rdi (float): the integer
+;   rsi (buff*): ptr to start of the buffer to write into
+; Returns number of characters written to string
+; including the 0-char at the end.
+dtoa:
     ret

@@ -87,7 +87,6 @@ xmalloca:
 ; Arguments:
 ;   rdi (addr*): xmptr to start of block.
 ; Returns size of user usable space in memory block.
-; !! TESTING IS REQUIRED, ERRONIOUS VALUES MAY BE RETURNED !!
 xmsize:
     sub rdi, XM_METADATA_OFFSET                                                 ; set ptr to point to start of smblock, i.e. the size therof
     mov rax, qword [rdi]                                                        ; mov the xmblock's size into rax

@@ -15,3 +15,6 @@ extern char* itoa(isize n);
 
 extern float atof(char* str);
 extern char* ftoa(float f);
+
+extern double atod(char* str);
+extern char* dtoa(double d);

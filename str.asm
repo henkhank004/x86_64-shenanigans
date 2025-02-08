@@ -146,7 +146,7 @@ itoa:
 
 ; Converts an ASCII 0-terminated string to a float (32-bits).
 ; Arguments:
-;    rdi (char*): ASCII string containing the float
+;    rdi (char*): 0-terminated ASCII string containing the float
 ; Returns (xmm0) float value from the string.
 atof:
     call _acftoir                                                               ; get the integer reduction
@@ -188,7 +188,7 @@ atof:
 ; obtained by simply removing the decimal delimiter.
 ;   i.e. input (str) "123.4567",0 returns (int) 1234567
 ; Arguments:
-;   rdi (char*): ASCII string containing the float
+;   rdi (char*): 0-terminated ASCII string containing the float
 ; Returns intiger value from the string.
 _acftoir:
     xor rsi, rsi                                                                ; set rsi = 0 to find the end of string
@@ -234,17 +234,18 @@ _acftoir:
 ; Converts a float into a 0-terminated ASCII string.
 ; Assumes the buffer is of an appropriate size.
 ; Arguments:
-;   rdi (float): the integer
-;   rsi (buff*): ptr to start of the buffer to write into
+;   xmm0 (float): the float
+;   rsi (char*): ptr to start of the buffer to write into
 ; Returns number of characters written to string
 ; including the 0-char at the end.
 ftoa:
-    ret
+    
+    
 
 
 ; Converts an ASCII 0-terminated string to a double (64-bits).
 ; Arguments:
-;    rdi (char*): ASCII string containing the double
+;    rdi (char*): 0-terminated ASCII string containing the double
 ; Returns (xmm0) float value from the string.
 atod:
     call _acftoir                                                               ; get the integer reduction
@@ -286,8 +287,8 @@ atod:
 ; Converts a double into a 0-terminated ASCII string.
 ; Assumes the buffer is of an appropriate size.
 ; Arguments:
-;   rdi (float): the integer
-;   rsi (buff*): ptr to start of the buffer to write into
+;   xmmo0 (double): the double
+;   rsi (char*): ptr to start of the buffer to write into
 ; Returns number of characters written to string
 ; including the 0-char at the end.
 dtoa:
